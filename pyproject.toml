@@ -1,0 +1,89 @@
+# =========================
+# Ruff 主配置
+# =========================
+[tool.ruff]
+target-version = "py311"                    # 目标 Python 语法版本（影响语法解析、升级建议、部分规则行为）
+line-length = 120                           # 全局行宽（同时影响 lint 中部分规则与 formatter 的换行）
+fix = true                                  # 开启自动修复（等价于常用的 `ruff check --fix` 行为）
+preview = false                             # 是否启用预览特性（可能包含不稳定规则/行为）
+respect-gitignore = true                    # 遵循 .gitignore/.ignore 等忽略文件
+unsafe-fixes = false                        # 是否允许“可能改变语义”的修复
+
+# =========================
+# Ruff Formatter 配置
+# =========================
+[tool.ruff.format]
+quote-style = "double"                      # 字符串引号风格：single=单引号，double=双引号
+indent-style = "space"                      # 缩进风格：space=空格，tab=制表符
+line-ending = "lf"                          # 行尾风格：lf（Unix）/ crlf（Windows）/ auto（自动检测）
+docstring-code-format = true                # 格式化 docstring 中的代码块（Markdown/rst/doctest）
+docstring-code-line-length = 120            # docstring 代码块的行宽限制（启用上项后生效）
+
+# =========================
+# Ruff Lint 规则选择
+# =========================
+[tool.ruff.lint]
+# 启用规则族：
+# E/W=pycodestyle, F=pyflakes, I=isort, B=bugbear,
+# N=pep8-naming, UP=pyupgrade, SIM=flake8-simplify, RUF=Ruff 专有规则, ANN=注解规则
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "B",
+    "N",
+    "UP",
+    "SIM",
+    "RUF",
+    "ANN"
+]
+# 忽略规则（按需关闭，避免与团队风格/格式化策略冲突）
+ignore = [
+    "E203", # 与部分格式化切片风格可能冲突
+    "E501", # 行长检查（交由 formatter + line-length 统一处理）
+    "B008", # 函数默认参数中的调用（部分框架场景会误报）
+    "N816", # 大写风格命名规则（按团队约定放宽）
+    "RUF001", # 可疑 Unicode 字符（根据项目文本场景放宽）
+    "RUF002", # Docstring 可疑 Unicode 字符
+    "RUF003", # 注释可疑 Unicode 字符
+    "SIM108", # if-else 可简化为三元表达式（可读性优先时忽略）
+    "SIM114"
+]
+# 额外排除目录（与 [tool.ruff].respect-gitignore 配合使用）
+exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist"
+]
+
+# =========================
+# Ruff 插件：flake8-annotations（类型注解）参数
+# =========================
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = false                  # *args/**kwargs 不允许隐式 Any（更严格）
+ignore-fully-untyped = true                 # 完全无类型注解的函数整体忽略（适合渐进式类型化）
+
+# ==================================================
+# Ty 配置
+# ==================================================
+[tool.ty]                                   # Ty 根配置表
+[tool.ty.environment]
+python-version = "3.11"                     # 类型检查目标 Python 版本
+python = "/Users/dengjianlong/miniforge3/envs/work/bin/python"  # 解释器/环境路径（用于解析依赖与导入）
+
+[tool.ty.src]
+include = ["./**"]                          # 扫描范围（当前为项目下全部）
+exclude = ["bf5800slagoff-frontend/**", "echarts_options/**"]  # 排除目录
+respect-ignore-files = true                 # 遵循 .gitignore/.tyignore 等忽略规则
+
+[tool.ty.rules]
+# 规则级别：
+# ignore = 忽略
+# warn   = 警告
+# error  = 错误（默认）
+index-out-of-bounds = "error"               # 越界访问（list/tuple 等）按错误处理
+
