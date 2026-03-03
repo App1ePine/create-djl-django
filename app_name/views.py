@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 
-from project_name.utils.json_response import DetailResponse, ErrorResponse
+from {{ project_name }}.utils.json_response import DetailResponse, ErrorResponse
 
 # Create your views here.
 from .utils.demo_test import demo_test

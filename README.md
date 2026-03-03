@@ -6,14 +6,19 @@
 
 ## 使用方式
 
-### 方式 A：固定版本
+### 1. 最简单：固定版本 + 不管理 `app_name`
 
 ```bash
 django-admin startproject mysite ./mysite \
   --template=https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/v0.1.3
 ```
 
-### 方式 B：使用最新版本
+说明：
+
+- 默认会生成占位 app 目录 `app_name/`；
+- 若你不想使用占位名，可在创建后手动重命名并同步修改 `INSTALLED_APPS`、`urls.py`、`apps.py`。
+
+### 2. 自动使用最新版本+不管理 `app_name`
 
 ```bash
 TAG=$(git ls-remote --tags --sort='v:refname' https://github.com/App1ePine/create-djl-django.git \
@@ -24,6 +29,23 @@ TAG=$(git ls-remote --tags --sort='v:refname' https://github.com/App1ePine/creat
 django-admin startproject mysite ./mysite \
   --template="https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/${TAG}"
 ```
+
+### 3. 自动控制 `app_name`（在 1 或 2 的基础上再执行）
+
+```bash
+PROJECT_NAME=mysite
+APP_NAME=demo
+
+python "./${PROJECT_NAME}/scripts/update_placeholder_app_name.py" "${APP_NAME}"
+
+# 或者使用单行命令
+PROJECT_NAME=mysite APP_NAME=demo python "./${PROJECT_NAME}/scripts/update_placeholder_app_name.py" "${APP_NAME}"
+```
+
+说明：
+
+- `django-admin startproject` 原生命令只支持 `project_name`；
+- `app_name` 通过 `scripts/update_placeholder_app_name.py` 对占位目录 `app_name/` 做二次替换。
 
 ## 依赖安装
 
@@ -42,7 +64,10 @@ pip install django djangorestframework drf-spectacular
 
 - 模板根目录：`create-djl-django/`
 - 项目包占位目录：`project_name/`
+- 示例应用占位目录：`app_name/`（创建后通过脚本替换）
 - Python 包路径占位变量：`{{ project_name }}`
+- 注意：文件内容里要使用 `{{ project_name }}`，不要写裸字符串 `project_name`
+- `django-admin startproject` 原生命令只支持 `project_name`，`app_name` 通过 `scripts/update_placeholder_app_name.py` 二次设置
 
 ## 首次初始化 GitHub 仓库
 

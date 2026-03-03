@@ -2,6 +2,6 @@ from django.urls import path
 
 from .views import demo_view
 
-app_name = "demo"
+app_name = "app_name"
 
 urlpatterns = [path("python_model/demo_view/", demo_view, name="demo_view")]
