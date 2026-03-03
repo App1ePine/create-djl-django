@@ -62,6 +62,94 @@ PROJECT_PATH=./mysite APP_NAME=demo python "${PROJECT_PATH}/scripts/update_place
 - `django-admin startproject` 原生命令只支持 `project_name`；
 - `app_name` 通过 `scripts/update_placeholder_app_name.py` 对占位目录 `app_name/` 做二次替换。
 
+### 4. 在 Shell 中封装一条命令（兼容 zsh/bash，__推荐__）
+
+说明：
+
+- 同一份函数可用于 `zsh` 与 `bash`；
+- `zsh` 用户写入 `~/.zshrc`，`bash` 用户写入 `~/.bashrc`；
+- `python_path` 改成你本机 Python 绝对路径。
+
+```bash
+my-django-admin() {
+  local debug=0
+
+  if [[ "$1" == "--debug" ]]; then
+    debug=1
+    shift
+  fi
+
+  local cmd="$1"
+  local project_name="$2"
+  local app_name="$3"
+  local project_path="$4"
+
+  local python_path="/Users/dengjianlong/miniforge3/envs/work/bin/python"
+
+  log() {
+    if [[ "$debug" -eq 1 ]]; then
+      echo "$@"
+    fi
+  }
+
+  info() {
+    echo "$@"
+  }
+
+  if [[ "$cmd" != "startproject" ]]; then
+    info "用法: my-django-admin [--debug] startproject <project_name> <app_name> <project_path>"
+    return 1
+  fi
+
+  if [[ -z "$project_name" || -z "$app_name" || -z "$project_path" ]]; then
+    info "用法: my-django-admin [--debug] startproject <project_name> <app_name> <project_path>"
+    return 1
+  fi
+
+  if [[ ! -x "$python_path" ]]; then
+    info "错误: python_path 不存在或不可执行: $python_path"
+    return 1
+  fi
+
+  if ! "$python_path" -m django --version >/dev/null 2>&1; then
+    info "错误: 该 python 环境未安装 Django: $python_path"
+    return 1
+  fi
+
+  local repo_url="https://github.com/App1ePine/create-djl-django.git"
+  local tag
+  tag=$(git ls-remote --tags --sort='v:refname' "$repo_url" \
+    | awk -F/ '{print $3}' \
+    | grep -E '^v?[0-9]+(\.[0-9]+)*$' \
+    | tail -n1)
+
+  if [[ -z "$tag" ]]; then
+    info "错误: 无法获取最新 tag"
+    return 1
+  fi
+
+  local template_url="https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/${tag}"
+
+  mkdir -p "$project_path" || return 1
+
+  log "正在创建项目: project_name=$project_name app_name=$app_name path=$project_path tag=$tag"
+  "$python_path" -m django startproject "$project_name" "$project_path" \
+    --template="$template_url" || return 1
+
+  "$python_path" "$project_path/scripts/update_placeholder_app_name.py" "$app_name" || return 1
+
+  info "创建完成: project_name=$project_name app_name=$app_name project_path=$project_path tag=$tag"
+}
+```
+
+加载配置后使用：
+
+```bash
+source ~/.zshrc   # bash 用户改为 source ~/.bashrc
+my-django-admin startproject application demo_app ./test01
+my-django-admin --debug startproject application demo_app ./test01
+```
+
 ## 依赖安装
 
 项目创建后，至少安装以下依赖：
