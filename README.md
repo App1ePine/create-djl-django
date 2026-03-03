@@ -10,7 +10,7 @@
 
 ```bash
 django-admin startproject mysite ./mysite \
-  --template=https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/v1.0.3
+  --template=https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/v0.1.3
 ```
 
 ### 方式 B：使用最新版本
