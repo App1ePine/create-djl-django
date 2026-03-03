@@ -73,6 +73,11 @@ def main() -> None:
         'include("app_name.urls")',
         f'include("{app_name}.urls")',
     )
+    replace_once(
+        project_package_dir / "urls.py",
+        'path("api/app_name/",',
+        f'path("api/{app_name}/",',
+    )
 
     apps_py = target_dir / "apps.py"
     replace_once(apps_py, "class AppNameConfig(AppConfig):", f"class {camel_case(app_name)}Config(AppConfig):")

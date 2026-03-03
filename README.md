@@ -6,19 +6,30 @@
 
 ## 使用方式
 
-### 1. 最简单：固定版本 + 不管理 `app_name`
+先统一三个概念：
+
+- `PROJECT_PATH`：项目落盘路径（`startproject` 第二个参数）
+- `PROJECT_NAME`：项目包名/管理目录名（`startproject` 第一个参数）
+- `APP_NAME`：应用目录名（模板里默认占位为 `app_name`）
+
+### 1. 最简单：使用指定模板版本 + 不通过脚本调整占位应用名
 
 ```bash
-django-admin startproject mysite ./mysite \
-  --template=https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/v0.1.3
+PROJECT_PATH=./mysite
+PROJECT_NAME=mysite
+
+mkdir -p "${PROJECT_PATH}"
+django-admin startproject "${PROJECT_NAME}" "${PROJECT_PATH}" \
+  --template=https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/v0.1.4
 ```
 
 说明：
 
+- `PROJECT_PATH` 和 `PROJECT_NAME` 可以不同（例如路径是 `./backend`，项目包名是 `application`）；
 - 默认会生成占位 app 目录 `app_name/`；
 - 若你不想使用占位名，可在创建后手动重命名并同步修改 `INSTALLED_APPS`、`urls.py`、`apps.py`。
 
-### 2. 自动使用最新版本+不管理 `app_name`
+### 2. 使用最新模板版本 + 不通过脚本调整占位应用名
 
 ```bash
 TAG=$(git ls-remote --tags --sort='v:refname' https://github.com/App1ePine/create-djl-django.git \
@@ -26,20 +37,24 @@ TAG=$(git ls-remote --tags --sort='v:refname' https://github.com/App1ePine/creat
   | grep -E '^v?[0-9]+(\.[0-9]+)*$' \
   | tail -n1)
 
-django-admin startproject mysite ./mysite \
+PROJECT_PATH=./mysite
+PROJECT_NAME=mysite
+
+mkdir -p "${PROJECT_PATH}"
+django-admin startproject "${PROJECT_NAME}" "${PROJECT_PATH}" \
   --template="https://codeload.github.com/App1ePine/create-djl-django/zip/refs/tags/${TAG}"
 ```
 
-### 3. 自动控制 `app_name`（在 1 或 2 的基础上再执行）
+### 3. 通过脚本调整占位应用名（在 1 或 2 的基础上再执行）
 
 ```bash
-PROJECT_NAME=mysite
+PROJECT_PATH=./mysite
 APP_NAME=demo
 
-python "./${PROJECT_NAME}/scripts/update_placeholder_app_name.py" "${APP_NAME}"
+python "${PROJECT_PATH}/scripts/update_placeholder_app_name.py" "${APP_NAME}"
 
 # 或者使用单行命令
-PROJECT_NAME=mysite APP_NAME=demo python "./${PROJECT_NAME}/scripts/update_placeholder_app_name.py" "${APP_NAME}"
+PROJECT_PATH=./mysite APP_NAME=demo python "${PROJECT_PATH}/scripts/update_placeholder_app_name.py" "${APP_NAME}"
 ```
 
 说明：
